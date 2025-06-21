@@ -198,7 +198,6 @@ if cenario_valido:
         # Métricas no topo - organizadas em duas seções
         st.subheader("📊 Métricas Financeiras")
         
-        # Primeira linha - VPL
         st.markdown("**Valor Presente Líquido (VPL)**")
         col1, col2, col3 = st.columns(3)
 
@@ -221,7 +220,7 @@ if cenario_valido:
                 "Diferença VPL",
                 f"{percentual_vpl:+.1f}%",
                 f"R$ {diferenca_vpl:,.2f}",
-                delta_color="inverse" if diferenca_vpl >= 0 else "normal",
+                delta_color="normal" if diferenca_vpl >= 0 else "inverse",  # CORREÇÃO AQUI
                 help="Variação percentual entre os cenários",
             )
 
@@ -248,7 +247,7 @@ if cenario_valido:
                 "Diferença Nominal",
                 f"{percentual_valor:+.1f}%",
                 f"R$ {diferenca_valor:,.2f}",
-                delta_color="inverse" if diferenca_valor >= 0 else "normal",
+                delta_color="normal" if diferenca_valor >= 0 else "inverse",  # CORREÇÃO AQUI
                 help="Variação percentual entre os cenários (valor nominal)",
             )
 
