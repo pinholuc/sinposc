@@ -11,7 +11,8 @@ st.set_page_config(page_title="Fluxo de Caixa", layout="wide")
 st.title("💰 Fluxo de Caixa - Peritos PCI")
 
 # DISCLAIMER COM PREMISSAS
-st.warning("""
+st.warning(
+    """
 ⚠️ **PREMISSAS IMPORTANTES DESTA ANÁLISE**
 
 **1. Premissa sobre Promoções (Ago/2026):**  
@@ -31,7 +32,8 @@ comparar valores em diferentes períodos. O valor nominal não considera o valor
 Os valores de salários são referentes aos valores a serem praticados em janeiro/2026 após consolidação de todas 
 as parcelas relacionadas ao reajuste de 21,5%.
 
-""")
+"""
+)
 
 st.markdown("---")
 
@@ -180,9 +182,11 @@ if cenario_valido:
         ].iloc[-1]
         diferenca_vpl = vpl_final_cenario - vpl_final_status_quo
         percentual_vpl = (
-            (diferenca_vpl / vpl_final_status_quo) * 100 if vpl_final_status_quo != 0 else 0
+            (diferenca_vpl / vpl_final_status_quo) * 100
+            if vpl_final_status_quo != 0
+            else 0
         )
-        
+
         # Calcular métricas finais para Valor Nominal
         valor_final_status_quo = df_filtrado[df_filtrado["Cenario"] == "Status Quo"][
             "ValorAcumulado"
@@ -192,12 +196,14 @@ if cenario_valido:
         ].iloc[-1]
         diferenca_valor = valor_final_cenario - valor_final_status_quo
         percentual_valor = (
-            (diferenca_valor / valor_final_status_quo) * 100 if valor_final_status_quo != 0 else 0
+            (diferenca_valor / valor_final_status_quo) * 100
+            if valor_final_status_quo != 0
+            else 0
         )
 
         # Métricas no topo - organizadas em duas seções
         st.subheader("📊 Métricas Financeiras")
-        
+
         st.markdown("**Valor Presente Líquido (VPL)**")
         col1, col2, col3 = st.columns(3)
 
@@ -220,7 +226,9 @@ if cenario_valido:
                 "Diferença VPL",
                 f"{percentual_vpl:+.1f}%",
                 f"R$ {diferenca_vpl:,.2f}",
-                delta_color="normal" if diferenca_vpl >= 0 else "inverse",  # CORREÇÃO AQUI
+                delta_color=(
+                    "normal" if diferenca_vpl >= 0 else "inverse"
+                ),  # CORREÇÃO AQUI
                 help="Variação percentual entre os cenários",
             )
 
@@ -247,18 +255,20 @@ if cenario_valido:
                 "Diferença Nominal",
                 f"{percentual_valor:+.1f}%",
                 f"R$ {diferenca_valor:,.2f}",
-                delta_color="normal" if diferenca_valor >= 0 else "inverse",  # CORREÇÃO AQUI
+                delta_color=(
+                    "normal" if diferenca_valor >= 0 else "inverse"
+                ),  # CORREÇÃO AQUI
                 help="Variação percentual entre os cenários (valor nominal)",
             )
 
         # Selector para tipo de gráfico
         st.subheader("📈 Comparação Temporal")
-        
+
         tipo_grafico = st.radio(
             "Escolha o tipo de análise:",
             ["VPL Acumulado", "Valor Nominal Acumulado", "Ambos"],
             horizontal=True,
-            help="VPL considera o valor do dinheiro no tempo, Valor Nominal não aplica desconto"
+            help="VPL considera o valor do dinheiro no tempo, Valor Nominal não aplica desconto",
         )
 
         if tipo_grafico == "VPL Acumulado":
@@ -275,7 +285,7 @@ if cenario_valido:
                     "Cenario": "Cenário",
                 },
             )
-            
+
         elif tipo_grafico == "Valor Nominal Acumulado":
             # Gráfico Valor Nominal
             fig = px.line(
@@ -290,73 +300,78 @@ if cenario_valido:
                     "Cenario": "Cenário",
                 },
             )
-            
+
         else:  # Ambos
             # Criar subplot com dois gráficos
             fig = make_subplots(
-                rows=2, cols=1,
+                rows=2,
+                cols=1,
                 subplot_titles=(
                     "VPL Acumulado (com desconto)",
-                    "Valor Nominal Acumulado (sem desconto)"
+                    "Valor Nominal Acumulado (sem desconto)",
                 ),
-                vertical_spacing=0.1
+                vertical_spacing=0.1,
             )
-            
+
             # Dados separados por cenário
             df_status_quo = df_filtrado[df_filtrado["Cenario"] == "Status Quo"]
             df_cenario_data = df_filtrado[df_filtrado["Cenario"] == "Cenário"]
-            
+
             # Gráfico VPL (superior)
             fig.add_trace(
                 go.Scatter(
                     x=df_status_quo["Data"],
                     y=df_status_quo["VPL_Acumulado"],
                     name="Status Quo (VPL)",
-                    line=dict(color="#FF6B6B", width=3)
+                    line=dict(color="#FF6B6B", width=3),
                 ),
-                row=1, col=1
+                row=1,
+                col=1,
             )
-            
+
             fig.add_trace(
                 go.Scatter(
                     x=df_cenario_data["Data"],
                     y=df_cenario_data["VPL_Acumulado"],
                     name="Cenário (VPL)",
-                    line=dict(color="#4ECDC4", width=3)
+                    line=dict(color="#4ECDC4", width=3),
                 ),
-                row=1, col=1
+                row=1,
+                col=1,
             )
-            
+
             # Gráfico Valor Nominal (inferior)
             fig.add_trace(
                 go.Scatter(
                     x=df_status_quo["Data"],
                     y=df_status_quo["ValorAcumulado"],
                     name="Status Quo (Nominal)",
-                    line=dict(color="#FF6B6B", width=3, dash="dash")
+                    line=dict(color="#FF6B6B", width=3, dash="dash"),
                 ),
-                row=2, col=1
+                row=2,
+                col=1,
             )
-            
+
             fig.add_trace(
                 go.Scatter(
                     x=df_cenario_data["Data"],
                     y=df_cenario_data["ValorAcumulado"],
                     name="Cenário (Nominal)",
-                    line=dict(color="#4ECDC4", width=3, dash="dash")
+                    line=dict(color="#4ECDC4", width=3, dash="dash"),
                 ),
-                row=2, col=1
+                row=2,
+                col=1,
             )
-            
+
             # Atualizar layout dos eixos Y
             fig.update_yaxes(title_text="VPL Acumulado (R$)", row=1, col=1)
             fig.update_yaxes(title_text="Valor Nominal (R$)", row=2, col=1)
             fig.update_xaxes(title_text="Data", row=2, col=1)
-            
+
             fig.update_layout(
                 height=800,
                 title_text=f"Comparação Completa - {servidor_selecionado} ({anos} anos)",
-                hovermode="x unified"
+                hovermode="x unified",
             )
 
         # Customizar o gráfico (para gráficos simples)
@@ -385,7 +400,7 @@ if cenario_valido:
 
         # Análise do VPL
         col_vpl, col_nominal = st.columns(2)
-        
+
         with col_vpl:
             st.markdown("**Análise VPL (Valor Presente)**")
             if diferenca_vpl > 0:
@@ -398,7 +413,7 @@ if cenario_valido:
                 )
             else:
                 st.info("⚖️ **Cenários Equivalentes em VPL**")
-        
+
         with col_nominal:
             st.markdown("**Análise Valor Nominal**")
             if diferenca_valor > 0:
