@@ -30,6 +30,7 @@ A taxa de desconto utilizada no cálculo do VPL representa o custo de oportunida
 comparar valores em diferentes períodos. O valor nominal não considera o valor do dinheiro no tempo.
 Os valores de salários são referentes aos valores a serem praticados em janeiro/2026 após consolidação de todas 
 as parcelas relacionadas ao reajuste de 21,5%.
+
 """)
 
 st.markdown("---")
@@ -219,8 +220,8 @@ if cenario_valido:
             st.metric(
                 "Diferença VPL",
                 f"{percentual_vpl:+.1f}%",
-                diferenca_vpl,
-                delta_color="normal" if diferenca_vpl >= 0 else "inverse",
+                f"R$ {diferenca_vpl:,.2f}",
+                delta_color="inverse" if diferenca_vpl >= 0 else "normal",
                 help="Variação percentual entre os cenários",
             )
 
@@ -246,8 +247,8 @@ if cenario_valido:
             st.metric(
                 "Diferença Nominal",
                 f"{percentual_valor:+.1f}%",
-                diferenca_valor,
-                delta_color="normal" if diferenca_valor >= 0 else "inverse",
+                f"R$ {diferenca_valor:,.2f}",
+                delta_color="inverse" if diferenca_valor >= 0 else "normal",
                 help="Variação percentual entre os cenários (valor nominal)",
             )
 
