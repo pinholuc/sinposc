@@ -214,7 +214,7 @@ class FluxoCaixaStatusQuoStrategy(FluxoCaixaStrategy):
         for data in datas:
             # Processar aposentadorias primeiro (para liberar vagas)
             servidores_atual = self._processar_aposentadorias(servidores_atual, data)
-            
+
             # Verificar se é mês de promoção
             if data.month in MESES_PROMOCAO:
                 servidores_atual = self._processar_promocoes_por_vagas(
@@ -241,28 +241,30 @@ class FluxoCaixaStatusQuoStrategy(FluxoCaixaStrategy):
     ) -> pd.DataFrame:
         """Processa aposentadorias baseadas em 30 anos de trabalho"""
         df_resultado = df_servidores.copy()
-        
+
         # Verificar se existe a coluna AnoBase
         if "AnoBase" not in df_resultado.columns:
             # Se não existir, usar DataBase se disponível
             if "DataBase" in df_resultado.columns:
-                df_resultado["AnoBase"] = pd.to_datetime(df_resultado["DataBase"]).dt.year
+                df_resultado["AnoBase"] = pd.to_datetime(
+                    df_resultado["DataBase"]
+                ).dt.year
             else:
                 return df_resultado
-        
+
         # Para cada servidor não aposentado
         mask_ativos = ~df_resultado["Aposentado"]
-        
+
         for idx, servidor in df_resultado[mask_ativos].iterrows():
             # Calcular anos de trabalho
             if pd.notna(servidor.get("AnoBase")):
                 anos_trabalho = data_atual.year - servidor["AnoBase"]
-                
+
                 # Verificar se completou 30 anos
                 if anos_trabalho >= ANOS_APOSENTADORIA:
                     df_resultado.at[idx, "Aposentado"] = True
                     df_resultado.at[idx, "DataAposentadoria"] = data_atual
-        
+
         return df_resultado
 
     def _processar_promocoes_por_vagas(
@@ -299,15 +301,17 @@ class FluxoCaixaStatusQuoStrategy(FluxoCaixaStrategy):
             # Recalcular ocupação atual a cada iteração para refletir mudanças
             # Considerar apenas servidores ATIVOS
             servidores_tipo_ativos = df_servidores[
-                (df_servidores.get("TipoPerito", "criminal") == tipo_perito) &
-                (~df_servidores["Aposentado"])
+                (df_servidores.get("TipoPerito", "criminal") == tipo_perito)
+                & (~df_servidores["Aposentado"])
             ]
 
             if len(servidores_tipo_ativos) == 0:
                 continue
 
             # Calcular ocupação atual por cargo (apenas ativos)
-            ocupacao_atual = servidores_tipo_ativos["CargoAtual"].value_counts().to_dict()
+            ocupacao_atual = (
+                servidores_tipo_ativos["CargoAtual"].value_counts().to_dict()
+            )
             for cargo in vagas_tipo.keys():
                 ocupacao_atual.setdefault(cargo, 0)
 
@@ -395,12 +399,12 @@ class FluxoCaixaCenarioStrategy(FluxoCaixaStrategy):
         for data in datas:
             # Processar aposentadorias primeiro (para ser consistente com Status Quo)
             servidores_atual = self._processar_aposentadorias(servidores_atual, data)
-            
+
             # Processar promoções por tempo
             servidores_atual = self._processar_promocoes_por_tempo(
                 servidores_atual, data, cenario
             )
-            
+
             # Gerar fluxo de caixa mensal
             dados_fluxo.extend(self._gerar_dados_fluxo_mensal(servidores_atual, data))
 
@@ -421,28 +425,30 @@ class FluxoCaixaCenarioStrategy(FluxoCaixaStrategy):
     ) -> pd.DataFrame:
         """Processa aposentadorias baseadas em 30 anos de trabalho (mesmo critério do Status Quo)"""
         df_resultado = df_servidores.copy()
-        
+
         # Verificar se existe a coluna AnoBase
         if "AnoBase" not in df_resultado.columns:
             # Se não existir, usar DataBase se disponível
             if "DataBase" in df_resultado.columns:
-                df_resultado["AnoBase"] = pd.to_datetime(df_resultado["DataBase"]).dt.year
+                df_resultado["AnoBase"] = pd.to_datetime(
+                    df_resultado["DataBase"]
+                ).dt.year
             else:
                 return df_resultado
-        
+
         # Para cada servidor não aposentado
         mask_ativos = ~df_resultado["Aposentado"]
-        
+
         for idx, servidor in df_resultado[mask_ativos].iterrows():
             # Calcular anos de trabalho
             if pd.notna(servidor.get("AnoBase")):
                 anos_trabalho = data_atual.year - servidor["AnoBase"]
-                
+
                 # Verificar se completou 30 anos
                 if anos_trabalho >= ANOS_APOSENTADORIA:
                     df_resultado.at[idx, "Aposentado"] = True
                     df_resultado.at[idx, "DataAposentadoria"] = data_atual
-        
+
         return df_resultado
 
     def _processar_promocoes_por_tempo(
@@ -463,10 +469,9 @@ class FluxoCaixaCenarioStrategy(FluxoCaixaStrategy):
                 continue
 
             # Verificar se é aniversário da data base
-            if (
-                not self._eh_aniversario_data_base(data_atual, servidor["DataBase"])
-                and not servidor.get("promove_novembro", False)
-            ):
+            if not self._eh_aniversario_data_base(
+                data_atual, servidor["DataBase"]
+            ) and not servidor.get("promove_novembro", False):
                 continue
 
             # Calcular anos de serviço e cargo esperado
@@ -613,37 +618,39 @@ def criar_resumo_comparativo(resumos_vpl: Dict[str, pd.DataFrame]) -> pd.DataFra
 def criar_analise_aposentadorias(df_fluxo: pd.DataFrame) -> pd.DataFrame:
     """
     Cria análise das aposentadorias ao longo do tempo
-    
+
     Args:
         df_fluxo: DataFrame com fluxo de caixa detalhado
-        
+
     Returns:
         DataFrame com estatísticas de aposentadorias por ano
     """
     # Filtrar apenas registros com data de aposentadoria
     aposentados = df_fluxo[df_fluxo["DataAposentadoria"].notna()].copy()
-    
+
     if len(aposentados) == 0:
         return pd.DataFrame()
-    
+
     # Pegar primeira ocorrência de cada aposentado
     aposentados = aposentados.groupby("Matricula").first().reset_index()
-    
+
     # Extrair ano de aposentadoria
-    aposentados["AnoAposentadoria"] = pd.to_datetime(aposentados["DataAposentadoria"]).dt.year
-    
+    aposentados["AnoAposentadoria"] = pd.to_datetime(
+        aposentados["DataAposentadoria"]
+    ).dt.year
+
     # Criar análise por ano e tipo de perito
     analise = (
         aposentados.groupby(["AnoAposentadoria", "TipoPerito", "CargoAtual"])
         .size()
         .reset_index(name="NumeroAposentadorias")
     )
-    
+
     # Adicionar totais por ano
     totais_ano = (
         aposentados.groupby("AnoAposentadoria")
         .size()
         .reset_index(name="TotalAposentadorias")
     )
-    
+
     return analise, totais_ano
