@@ -221,15 +221,12 @@ if cenario_valido:
                 help="Valor presente líquido no cenário configurado",
             )
 
-        with col3:
+with col3:
             st.metric(
                 "Diferença VPL",
-                f"{percentual_vpl:+.1f}%",
-                f"R$ {diferenca_vpl:,.2f}",
-                delta_color=(
-                    "normal" if diferenca_vpl >= 0 else "inverse"
-                ),  # CORREÇÃO AQUI
-                help="Variação percentual entre os cenários",
+                f"R$ {diferenca_vpl:,.2f}",  # REMOVIDO O PERCENTUAL AQUI
+                delta_color="normal" if diferenca_vpl >= 0 else "inverse",
+                help="Diferença absoluta entre os cenários",
             )
 
         # Segunda linha - Valor Nominal
@@ -253,12 +250,9 @@ if cenario_valido:
         with col6:
             st.metric(
                 "Diferença Nominal",
-                f"{percentual_valor:+.1f}%",
-                f"R$ {diferenca_valor:,.2f}",
-                delta_color=(
-                    "normal" if diferenca_valor >= 0 else "inverse"
-                ),  # CORREÇÃO AQUI
-                help="Variação percentual entre os cenários (valor nominal)",
+                f"R$ {diferenca_valor:,.2f}",  # REMOVIDO O PERCENTUAL AQUI
+                delta_color="normal" if diferenca_valor >= 0 else "inverse",
+                help="Diferença absoluta entre os cenários (valor nominal)",
             )
 
         # Selector para tipo de gráfico
