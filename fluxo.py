@@ -393,9 +393,15 @@ class FluxoCaixaCenarioStrategy(FluxoCaixaStrategy):
 
         # Processar cada mês
         for data in datas:
+            # Processar aposentadorias primeiro (para ser consistente com Status Quo)
+            servidores_atual = self._processar_aposentadorias(servidores_atual, data)
+            
+            # Processar promoções por tempo
             servidores_atual = self._processar_promocoes_por_tempo(
                 servidores_atual, data, cenario
             )
+            
+            # Gerar fluxo de caixa mensal
             dados_fluxo.extend(self._gerar_dados_fluxo_mensal(servidores_atual, data))
 
         # Criar e processar DataFrame final
@@ -410,24 +416,56 @@ class FluxoCaixaCenarioStrategy(FluxoCaixaStrategy):
 
         return df_fluxo, resumo_vpl
 
+    def _processar_aposentadorias(
+        self, df_servidores: pd.DataFrame, data_atual: datetime
+    ) -> pd.DataFrame:
+        """Processa aposentadorias baseadas em 30 anos de trabalho (mesmo critério do Status Quo)"""
+        df_resultado = df_servidores.copy()
+        
+        # Verificar se existe a coluna AnoBase
+        if "AnoBase" not in df_resultado.columns:
+            # Se não existir, usar DataBase se disponível
+            if "DataBase" in df_resultado.columns:
+                df_resultado["AnoBase"] = pd.to_datetime(df_resultado["DataBase"]).dt.year
+            else:
+                return df_resultado
+        
+        # Para cada servidor não aposentado
+        mask_ativos = ~df_resultado["Aposentado"]
+        
+        for idx, servidor in df_resultado[mask_ativos].iterrows():
+            # Calcular anos de trabalho
+            if pd.notna(servidor.get("AnoBase")):
+                anos_trabalho = data_atual.year - servidor["AnoBase"]
+                
+                # Verificar se completou 30 anos
+                if anos_trabalho >= ANOS_APOSENTADORIA:
+                    df_resultado.at[idx, "Aposentado"] = True
+                    df_resultado.at[idx, "DataAposentadoria"] = data_atual
+        
+        return df_resultado
+
     def _processar_promocoes_por_tempo(
         self, df_servidores: pd.DataFrame, data_atual: datetime, cenario: List[int]
     ) -> pd.DataFrame:
-        """Processa promoções baseadas em tempo de serviço"""
+        """Processa promoções baseadas em tempo de serviço (apenas para servidores ativos)"""
 
         if data_atual < datetime(2026, 8, 1):
             return df_servidores
 
         df_resultado = df_servidores.copy()
 
-        for idx, servidor in df_resultado.iterrows():
+        # Processar apenas servidores ATIVOS (não aposentados)
+        mask_ativos = ~df_resultado["Aposentado"]
+
+        for idx, servidor in df_resultado[mask_ativos].iterrows():
             if pd.isna(servidor.get("DataBase")):
                 continue
 
             # Verificar se é aniversário da data base
             if (
                 not self._eh_aniversario_data_base(data_atual, servidor["DataBase"])
-                and not servidor["promove_novembro"]
+                and not servidor.get("promove_novembro", False)
             ):
                 continue
 
@@ -436,7 +474,7 @@ class FluxoCaixaCenarioStrategy(FluxoCaixaStrategy):
             cargo_esperado = self._determinar_cargo_por_tempo(
                 anos_servico,
                 cenario,
-                servidor["promove_novembro"],
+                servidor.get("promove_novembro", False),
                 data_atual,
                 servidor["CargoAtual"],
             )
