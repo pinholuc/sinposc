@@ -7,8 +7,13 @@ from typing import Dict, List, Optional, Union, Tuple
 # Constantes do sistema
 SALARIOS = {1: 27737.24, 2: 31699.35, 3: 35661.47, 4: 39623.58}
 TAXA = 0.06
-CENARIO_A = [5, 10, 15]  # 5-5-5
-CENARIO_B = [4, 8, 15]  # 4-4-7
+
+# Definir todos os cenários disponíveis
+CENARIOS = {
+    "5-10-15": [5, 10, 15],  # Cenário original
+    "4-8-15": [4, 8, 15],  # Novo cenário 1
+    "3-6-15": [3, 6, 15],  # Novo cenário 2
+}
 
 VAGAS_POR_TIPO = {
     "criminal": {1: 100, 2: 80, 3: 115, 4: 50},
@@ -386,7 +391,7 @@ class FluxoCaixaCenarioStrategy(FluxoCaixaStrategy):
         taxa: float = TAXA,
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         if cenario is None:
-            cenario = CENARIO_A
+            cenario = CENARIOS["5-10-15"]  # Cenário padrão
 
         inicio = datetime(2025, 7, 1)
         datas = pd.date_range(inicio, periods=anos * 12, freq="ME")
@@ -654,3 +659,44 @@ def criar_analise_aposentadorias(df_fluxo: pd.DataFrame) -> pd.DataFrame:
     )
 
     return analise, totais_ano
+
+
+def processar_todos_cenarios(
+    df_servidores: pd.DataFrame,
+    anos: int = 35,
+    taxa: float = TAXA,
+    incluir_status_quo: bool = True,
+) -> Dict[str, Tuple[pd.DataFrame, pd.DataFrame]]:
+    """
+    Processa todos os cenários disponíveis de uma só vez
+
+    Args:
+        df_servidores: DataFrame com dados dos servidores
+        anos: Número de anos para projeção
+        taxa: Taxa de desconto
+        incluir_status_quo: Se deve incluir o cenário Status Quo
+
+    Returns:
+        Dicionário com nome do cenário como chave e tuple (df_fluxo, resumo_vpl) como valor
+    """
+    resultados = {}
+
+    # Processar Status Quo se solicitado
+    if incluir_status_quo:
+        df_fluxo_sq, resumo_sq = criar_fluxo_caixa(
+            df_servidores=df_servidores, anos=anos, estrategia="status_quo", taxa=taxa
+        )
+        resultados["Status Quo"] = (df_fluxo_sq, resumo_sq)
+
+    # Processar todos os cenários de regras
+    for nome_cenario, valores_cenario in CENARIOS.items():
+        df_fluxo, resumo = criar_fluxo_caixa(
+            df_servidores=df_servidores,
+            anos=anos,
+            estrategia="cenario",
+            cenario=valores_cenario,
+            taxa=taxa,
+        )
+        resultados[f"Regra {nome_cenario}"] = (df_fluxo, resumo)
+
+    return resultados
