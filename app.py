@@ -30,9 +30,6 @@ A taxa de desconto utilizada no cálculo do VPL representa o custo de oportunida
 comparar valores em diferentes períodos. O valor nominal não considera o valor do dinheiro no tempo.
 Os valores de salários são referentes aos valores a serem praticados em janeiro/2026 após consolidação de todas 
 as parcelas relacionadas ao reajuste de 21,5%.
-
-**⚠️ Importante:** Esta análise é uma projeção baseada nas premissas acima. 
-Mudanças na legislação, política salarial ou outros fatores externos podem impactar os resultados reais.
 """)
 
 st.markdown("---")
