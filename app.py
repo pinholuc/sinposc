@@ -219,12 +219,12 @@ if cenario_valido:
             )
 
         with col3:
-            delta_vpl = f"R$ {diferenca_vpl:+,.0f}"
+            delta_vpl = f"R$ {abs(diferenca_vpl):,.0f}"
             st.metric(
                 "Diferença VPL",
                 f"{percentual_vpl:+.1f}%",
                 delta_vpl,
-                delta_color="off",
+                delta_color="normal" if diferenca_vpl >= 0 else "inverse",
                 help="Variação percentual entre os cenários",
             )
 
@@ -247,12 +247,12 @@ if cenario_valido:
             )
 
         with col6:
-            delta_valor = f"R$ {diferenca_valor:+,.0f}"
+            delta_valor = f"R$ {abs(diferenca_valor):,.0f}"
             st.metric(
                 "Diferença Nominal",
                 f"{percentual_valor:+.1f}%",
                 delta_valor,
-                delta_color="off",
+                delta_color="normal" if diferenca_valor >= 0 else "inverse",
                 help="Variação percentual entre os cenários (valor nominal)",
             )
 
