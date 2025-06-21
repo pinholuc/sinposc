@@ -216,7 +216,7 @@ if cenario_valido:
             )
 
         with col3:
-            delta_vpl = f"R$ {abs(diferenca_vpl):,.0f}"
+            delta_vpl = f"R$ {(diferenca_vpl):,.0f}"
             st.metric(
                 "Diferença VPL",
                 f"{percentual_vpl:+.1f}%",
@@ -244,7 +244,7 @@ if cenario_valido:
             )
 
         with col6:
-            delta_valor = f"R$ {abs(diferenca_valor):,.0f}"
+            delta_valor = f"R$ {(diferenca_valor):,.0f}"
             st.metric(
                 "Diferença Nominal",
                 f"{percentual_valor:+.1f}%",
