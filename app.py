@@ -6,7 +6,7 @@ from plotly.subplots import make_subplots
 from peritos import carregar_servidores
 from fluxo import criar_fluxo_caixa
 
-st.set_page_config(page_title="Fluxo de Caixa", layout="wide")
+st.set_page_config(page_title="Fluxo de Caixa", layout="wide", initial_sidebar_state="expanded")
 
 st.title("💰 Fluxo de Caixa - Peritos PCI")
 
