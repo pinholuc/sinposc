@@ -6,7 +6,7 @@ from plotly.subplots import make_subplots
 from peritos import carregar_servidores
 from fluxo import criar_fluxo_caixa
 
-st.set_page_config(page_title="Fluxo de Caixa", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Fluxo de Caixa", layout="wide")
 
 st.title("💰 Fluxo de Caixa - Peritos PCI")
 
@@ -221,12 +221,15 @@ if cenario_valido:
                 help="Valor presente líquido no cenário configurado",
             )
 
-with col3:
+        with col3:
             st.metric(
                 "Diferença VPL",
-                f"R$ {diferenca_vpl:,.2f}",  # REMOVIDO O PERCENTUAL AQUI
-                delta_color="normal" if diferenca_vpl >= 0 else "inverse",
-                help="Diferença absoluta entre os cenários",
+                f"{percentual_vpl:+.1f}%",
+                f"R$ {diferenca_vpl:,.2f}",
+                delta_color=(
+                    "normal" if diferenca_vpl >= 0 else "inverse"
+                ),  # CORREÇÃO AQUI
+                help="Variação percentual entre os cenários",
             )
 
         # Segunda linha - Valor Nominal
@@ -250,9 +253,12 @@ with col3:
         with col6:
             st.metric(
                 "Diferença Nominal",
-                f"R$ {diferenca_valor:,.2f}",  # REMOVIDO O PERCENTUAL AQUI
-                delta_color="normal" if diferenca_valor >= 0 else "inverse",
-                help="Diferença absoluta entre os cenários (valor nominal)",
+                f"{percentual_valor:+.1f}%",
+                f"R$ {diferenca_valor:,.2f}",
+                delta_color=(
+                    "normal" if diferenca_valor >= 0 else "inverse"
+                ),  # CORREÇÃO AQUI
+                help="Variação percentual entre os cenários (valor nominal)",
             )
 
         # Selector para tipo de gráfico
