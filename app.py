@@ -15,7 +15,7 @@ st.warning(
     """
 ⚠️ **PREMISSAS IMPORTANTES DESTA ANÁLISE**
 
-**1. Premissa sobre Promoções (Ago/2026):**  
+**1. Premissa sobre Promoções de Novembro/2025:**  
 Irão acontecer em agosto/2026 conforme artigo 69 do anteprojeto de Lei.
 
 **2. Premissa sobre Aposentadoria:**  
