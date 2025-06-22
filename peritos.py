@@ -2,6 +2,31 @@ import pandas as pd
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+MATRICULAS_PROMOVE_NOVEMBRO_EXTRA = [
+    "645609-0",
+    "645628-6",
+    "645623-5",
+    "645611-1",
+    "645617-0",
+    "646149-2",
+    "644981-6",
+    "282056-0",
+    "973859-2",
+    "397517-7",
+    "658112-9",
+    "997446-6",
+    "634026-1",
+    "646001-1",
+    "645598-0",
+    "645656-1",
+    "645625-1",
+    "645604-9",
+    "645624-3",
+    "645605-7",
+    "645626-0",
+    "646148-4",
+]
+
 
 def carregar_servidores(arquivo):
     """
@@ -83,7 +108,7 @@ def carregar_servidores(arquivo):
         "nov/2014": datetime(2014, 11, 1),
         "maio/2014": datetime(2014, 5, 1),
         "mai/2014": datetime(2014, 5, 1),
-        "?": datetime(2015, 5, 1)
+        "?": datetime(2015, 5, 1),
     }
 
     for data in servidores["Promoção"]:
@@ -166,12 +191,13 @@ def carregar_servidores(arquivo):
 
     servidores["Promoção"] = datas_convertidas
     faltando_data = servidores[pd.isna(servidores["Promoção"])]
-    print("Servidores excluídos por Promoção NaT:")
-    print(faltando_data[["Nome", "Promoção"]])
+
     servidores = servidores[servidores["Promoção"].notna()].reset_index(drop=True)
+
     servidores["promove_novembro"] = (
-        servidores["Pos.Geral"].between(150, 177).astype(int)
-    )
+        servidores["Pos.Geral"].between(150, 177)
+        | servidores["Matrícula"].isin(MATRICULAS_PROMOVE_NOVEMBRO_EXTRA)
+    ).astype(int)
     # First, ensure all date columns are datetime objects
     date_columns = [
         "DataBase",
@@ -179,6 +205,12 @@ def carregar_servidores(arquivo):
         "Promoção",
     ]  # Add all relevant date columns
 
+    promove_novembro = servidores[servidores["promove_novembro"] == 1]
+    print("Servidores excluídos por Promoção NaT:")
+    print(faltando_data[["Nome", "Promoção"]])
+    print(len(promove_novembro))
+    print(promove_novembro)
+    
     for col in date_columns:
         if col in servidores.columns:
             # Convert to datetime, handling errors gracefully
@@ -193,7 +225,6 @@ def carregar_servidores(arquivo):
     print(
         f"Total de servidores após remover linhas com Promoção nula: {len(servidores)}"
     )
-
 
     return servidores
 
