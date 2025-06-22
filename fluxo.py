@@ -201,7 +201,7 @@ class FluxoCaixaStatusQuoStrategy(FluxoCaixaStrategy):
         taxa: float = TAXA,
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         inicio = datetime(2025, 7, 1)
-        datas = pd.date_range(inicio, periods=anos * 12, freq="ME")
+        datas = gerar_datas_completas(inicio, anos)
         dados_fluxo = []
 
         # Preparar servidores
@@ -394,7 +394,7 @@ class FluxoCaixaCenarioStrategy(FluxoCaixaStrategy):
             cenario = CENARIOS["5-10-15"]  # Cenário padrão
 
         inicio = datetime(2025, 7, 1)
-        datas = pd.date_range(inicio, periods=anos * 12, freq="ME")
+        datas = gerar_datas_completas(inicio, anos)
         dados_fluxo = []
 
         # Preparar servidores
@@ -700,3 +700,31 @@ def processar_todos_cenarios(
         resultados[f"Regra {nome_cenario}"] = (df_fluxo, resumo)
 
     return resultados
+
+
+def gerar_datas_completas(inicio: datetime, anos: int) -> pd.DatetimeIndex:
+    """
+    Gera datas mensais por anos calendário completos
+
+    Para 10 anos iniciando em jul/2025:
+    - 2025: jul-dez (apenas meses do ano de início)
+    - 2026-2035: jan-dez completos (anos calendário inteiros)
+
+    Args:
+        inicio: Data de início (ex: datetime(2025, 7, 1))
+        anos: Número de anos calendário a incluir
+
+    Returns:
+        DatetimeIndex com datas mensais organizadas por anos calendário
+    """
+    # Ano inicial e final
+    ano_inicial = inicio.year
+    ano_final = ano_inicial + anos
+
+    # Data final: 31 de dezembro do último ano
+    fim = datetime(ano_final, 12, 31)
+
+    # Gerar todas as datas mensais do início até o fim
+    datas = pd.date_range(inicio, fim, freq="ME")
+
+    return datas
