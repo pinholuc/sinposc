@@ -476,9 +476,6 @@ with tab_evolucao_carreiras:
         help="Escolha o cenário para visualizar a distribuição final das carreiras",
     )
     
-    # Informar sobre otimização
-    st.info(f"📊 Análise baseada nos primeiros {anos_visualizacao} anos (dados pré-calculados)")
-    
     # Processar dados usando cache
     df_evolucao = processar_evolucao_carreiras_otimizada(
         dados_completos, cenario_selecionado_carreiras, anos_visualizacao
@@ -607,9 +604,6 @@ with tab_evolucao_carreiras:
 with tab_detalhes:
     st.subheader("Dados Detalhados dos Custos Governamentais")
     
-    # Informar sobre filtro
-    st.info(f"📊 Mostrando dados filtrados para {anos_visualizacao} anos")
-    
     # Permitir download dos dados
     csv = df_custos_governo.to_csv(index=False)
     st.download_button(
@@ -701,9 +695,6 @@ def processar_comparacao_multipla_otimizada(dados_completos, servidor_info, anos
 servidor_info = peritos[peritos["Nome"] == servidor_selecionado].iloc[0]
 
 st.subheader(f"Análise para: {servidor_selecionado}")
-
-# Informar sobre otimização
-st.info(f"📊 Análise baseada nos primeiros {anos_visualizacao} anos (dados pré-calculados para 35 anos)")
 
 # Mostrar informações básicas do servidor
 col_info1, col_info2, col_info3 = st.columns(3)
@@ -935,34 +926,5 @@ if not df_comparacao.empty:
 else:
     st.warning("Não foi possível processar os dados do servidor selecionado.")
 
-# ===================== INFORMAÇÕES DE PERFORMANCE =====================
-st.markdown("---")
-st.markdown("## ⚡ Informações de Performance")
-
-with st.expander("📊 Cache e Otimizações"):
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.write("**✅ Dados em Cache:**")
-        st.write("- Dados completos (35 anos) para todos os cenários")
-        st.write("- Custos do governo agregados")
-        st.write("- Lista de servidores")
-        
-    with col2:
-        st.write("**🔄 Recálculo apenas quando:**")
-        st.write("- Taxa de desconto é alterada")
-        st.write("- Arquivo de dados é modificado")
-        
-    st.write("**⚡ Filtros rápidos (sem recálculo):**")
-    st.write("- Alteração de anos para visualização")
-    st.write("- Seleção de servidor")
-    st.write("- Mudança entre abas")
-
-# Botão para limpar cache (para debug)
-if st.button("🗑️ Limpar Cache (Debug)", help="Força recálculo de todos os dados"):
-    st.cache_data.clear()
-    st.rerun()
-
 # Rodapé
 st.markdown("---")
-
