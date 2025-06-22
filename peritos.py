@@ -67,8 +67,11 @@ def carregar_servidores(arquivo):
     datas_convertidas = []
 
     mapeamento_datas = {
+        "nov/2016?": datetime(2016, 11, 1),
         "nov/2018?": datetime(2018, 11, 1),
         "nov/2017?": datetime(2017, 11, 1),
+        "nov/2016?": datetime(2016, 11, 1),
+        "nov/2015?": datetime(2015, 11, 1),
         "nov/2018": datetime(2018, 11, 1),
         "nov/2017": datetime(2017, 11, 1),
         "mai/2016": datetime(2016, 5, 1),
@@ -80,6 +83,7 @@ def carregar_servidores(arquivo):
         "nov/2014": datetime(2014, 11, 1),
         "maio/2014": datetime(2014, 5, 1),
         "mai/2014": datetime(2014, 5, 1),
+        "?": datetime(2015, 5, 1)
     }
 
     for data in servidores["Promoção"]:
@@ -97,6 +101,9 @@ def carregar_servidores(arquivo):
 
             # Se é string, processar
             if isinstance(data, str):
+                if data.strip() == "?":
+                    datas_convertidas.append(datetime(2015, 5, 1))
+                    continue
                 data_limpa = data.strip().replace("?", "").replace("*", "").lower()
 
                 # Se string vazia após limpeza
@@ -157,11 +164,14 @@ def carregar_servidores(arquivo):
             print(f"Erro ao converter data '{data}': {e}. Usando NaT.")
             datas_convertidas.append(pd.NaT)
 
+    servidores["Promoção"] = datas_convertidas
+    faltando_data = servidores[pd.isna(servidores["Promoção"])]
+    print("Servidores excluídos por Promoção NaT:")
+    print(faltando_data[["Nome", "Promoção"]])
     servidores = servidores[servidores["Promoção"].notna()].reset_index(drop=True)
     servidores["promove_novembro"] = (
         servidores["Pos.Geral"].between(150, 177).astype(int)
     )
-
     # First, ensure all date columns are datetime objects
     date_columns = [
         "DataBase",
@@ -183,6 +193,7 @@ def carregar_servidores(arquivo):
     print(
         f"Total de servidores após remover linhas com Promoção nula: {len(servidores)}"
     )
+
 
     return servidores
 
