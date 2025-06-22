@@ -965,13 +965,4 @@ if st.button("🗑️ Limpar Cache (Debug)", help="Força recálculo de todos os
 
 # Rodapé
 st.markdown("---")
-st.markdown("### 💡 Principais Otimizações Implementadas")
-st.markdown("""
-1. **Cache Inteligente**: Dados calculados uma vez para 35 anos, reutilizados nas visualizações
-2. **Filtros Dinâmicos**: Mudança de período não recalcula, apenas filtra dados existentes
-3. **Recálculo Seletivo**: Apenas alterações na taxa de desconto forçam novo cálculo
-4. **Processamento Otimizado**: Servidor individual usa dados já processados do cache
-5. **Interface Responsiva**: Mudanças de visualização são instantâneas
-""")
 
-st.markdown("**📈 Resultado:** Interface muito mais rápida e responsiva para o usuário!")
