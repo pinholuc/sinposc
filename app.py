@@ -210,7 +210,7 @@ tab_resumo, tab_temporal, tab_evolucao_carreiras, tab_detalhes = st.tabs(
 
 with tab_resumo:
     # Calcular métricas para o período selecionado
-    custos_anuais, totais_periodo = calcular_metricas_periodo(df_custos_governo, min(4, anos_visualizacao))
+    custos_anuais, totais_periodo = calcular_metricas_periodo(df_custos_governo, min(3, anos_visualizacao))
     
     if not custos_anuais.empty:
         # Exibir métricas em colunas
@@ -225,7 +225,7 @@ with tab_resumo:
         
         with col2:
             data_inicio = df_custos_governo["Data"].min()
-            anos_exibidos = min(4, anos_visualizacao)
+            anos_exibidos = min(3, anos_visualizacao)
             periodo_exibido = f"{data_inicio.year}-{data_inicio.year + anos_exibidos - 1}"
             st.metric(
                 "Período Mostrado",
@@ -241,7 +241,7 @@ with tab_resumo:
             )
         
         # Tabela comparativa para o período
-        st.subheader(f"Comparação de Custos - Primeiros {min(4, anos_visualizacao)} Anos")
+        st.subheader(f"Comparação de Custos - Primeiros {min(3, anos_visualizacao)} Anos")
         
         # Preparar dados para exibição anual
         df_display_anual = custos_anuais.pivot(
@@ -304,7 +304,7 @@ with tab_resumo:
         
         # Gráfico de barras para o período
         st.markdown("---")
-        st.subheader(f"Visualização dos Custos - Primeiros {min(4, anos_visualizacao)} Anos")
+        st.subheader(f"Visualização dos Custos - Primeiros {min(3, anos_visualizacao)} Anos")
         
         fig_periodo = px.bar(
             custos_anuais,
